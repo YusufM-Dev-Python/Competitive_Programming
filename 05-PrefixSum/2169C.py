@@ -5,7 +5,7 @@ Goal: Compute maximum possible gain by evaluating localized prefix/suffix update
       combined with prefix sum arrays.
 
 Logic:
-1. Prefix Sum Construction: Build a prefix sum array `pf` in $\mathcal{O}(N)$ time to allow 
+1. Prefix Sum Construction: Build a prefix sum array `pf` in mathcal{O}(N) time to allow 
    fast range sum queries.
 2. Tracking Optimal Left States: Maintain `max_L` evaluating components like `pf[i-1] - (i * i) + i` 
    dynamically as we loop through index bounds.
@@ -13,8 +13,8 @@ Logic:
    to find the absolute maximum overall gain added to the `original_sum`.
 
 Complexity Analysis:
-- Time: $\mathcal{O}(N)$ per test case - Single linear pass using precalculated prefix sums.
-- Space: $\mathcal{O}(N)$ to store array elements and prefix tracking tables.
+- Time: mathcalO(N) per test case - Single linear pass using precalculated prefix sums.
+- Space: mathcalO(N) to store array elements and prefix tracking tables.
 """
 
 import sys

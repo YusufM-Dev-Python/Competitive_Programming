@@ -1,21 +1,24 @@
 """
-Day 152: Codeforces 2275C - Frequency Mapping / Parity Tracking
-Topic: Hash Maps / Two Pointers / Counting
+Day 153: Codeforces 2275C - Frequency Mapping with Anti-Hash-Bombing Protection
+Topic: Hash Maps / Randomized Hashing / Parity Tracking
 Logic:
-1. Fast I/O is used to read inputs.
-2. For each test case, compute the custom triplet expression values: `vals[i] = arr[i] + arr[i+2] - arr[i+4]` for valid indices up to `n - 4`.
-3. Maintain frequency maps (`all_odd`, `all_even`) split by parity to track element counts across matching parities.
-4. Use a sliding window approach with a distance constraint (`add_idx = i - 6`) to transition elements into valid status dictionaries (`valid_odd`, `valid_even`) once they satisfy spacing requirements.
-5. Aggregate valid matching pairs according to parity conditions and accumulate the total count (`ans`).
+1. Initialize a random 32-bit integer `R` to randomize dictionary keys via XOR hashing, mitigating worst-case hash collisions (anti-hash tests).
+2. For each test case, compute triplet values with the random mask applied: `vals[i] = (arr[i] + arr[i+2] - arr[i+4]) ^ R`.
+3. Use `defaultdict` along with parity tracking (`all_odd`, `all_even`, `valid_odd`, `valid_even`) and a sliding window distance constraint (`add_idx = i - 6`) to accumulate valid pairs.
+4. Print the total matched count securely without fear of TLE due to hash collisions.
 
 Complexity Analysis:
-- Time: O(N) per test case - single pass iteration with dictionary lookups.
-- Space: O(N) - to store the frequency dictionaries and values array.
+- Time: O(N) per test case - optimal linear pass with randomized hash map operations.
+- Space: O(N) - to store frequency dictionaries and arrays.
 """
 
 import sys
+import random
+from collections import defaultdict
 
 input = lambda: sys.stdin.readline().rstrip()
+
+R = random.getrandbits(32)
 
 def solve():
     t = int(input())
@@ -23,13 +26,13 @@ def solve():
         n = int(input())
         arr = list(map(int, input().split()))
 
-        vals = [arr[i] + arr[i + 2] - arr[i + 4] for i in range(n - 4)]
+        vals = [(arr[i] + arr[i + 2] - arr[i + 4]) ^ R for i in range(n - 4)]
 
-        all_odd = {}
-        all_even = {}
+        all_odd = defaultdict(int)
+        all_even = defaultdict(int)
 
-        valid_odd = {}
-        valid_even = {}
+        valid_odd = defaultdict(int)
+        valid_even = defaultdict(int)
 
         ans = 0
 
@@ -41,21 +44,18 @@ def solve():
             if add_idx >= 0:
                 add_val = vals[add_idx]
                 if add_idx % 2 == 0:
-                    valid_even[add_val] = valid_even.get(add_val, 0) + 1
+                    valid_even[add_val] += 1
                 else:
-                    valid_odd[add_val] = valid_odd.get(add_val, 0) + 1
+                    valid_odd[add_val] += 1
 
             if p == 0:
-                ans += all_odd.get(val, 0)
-                all_even[val] = all_even.get(val, 0) + 1
+                ans += all_odd[val]
+                all_even[val] += 1
+                ans += valid_even[val]
             else:
-                ans += all_even.get(val, 0)
-                all_odd[val] = all_odd.get(val, 0) + 1
-
-            if p == 0:
-                ans += valid_even.get(val, 0)
-            else:
-                ans += valid_odd.get(val, 0)  
+                ans += all_even[val]
+                all_odd[val] += 1
+                ans += valid_odd[val]
 
         print(ans)
 

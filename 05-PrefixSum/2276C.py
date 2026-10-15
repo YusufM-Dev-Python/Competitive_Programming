@@ -1,16 +1,16 @@
 """
-Day 157: Codeforces 2276C - Prefix Sums Modulo K & Frequency Tracking
-Topic: Prefix Sums / Modular Arithmetic / Hash Maps
+Day 157: Codeforces 2276C - Prefix Sums Modulo K (Array-Based Frequency Optimization)
+Topic: Prefix Sums / Modular Arithmetic / Frequency Array
 Logic:
 1. Read the number of test cases `t`.
 2. For each test case, read `n` and `k`, followed by the array elements `arr`.
 3. Compute prefix sum remainders modulo `k` and store them in `pf`.
-4. Maintain a frequency dictionary to track valid remainders conforming to the range constraints dictated by `k`.
-5. Iterate through possible right boundaries `r`, updating frequency counts and accumulating the matching pairs into `ans`.
+4. Instead of a Python dictionary (which can trigger TLE or hash collisions), use a fixed-size frequency array `freq = [0] * k` since all remainders are strictly less than `k`.
+5. Maintain the sliding window boundaries, increment remainder counts in the frequency array, and accumulate matching pairs into `ans` in O(1) time per step.
 
 Complexity Analysis:
-- Time: O(N) per test case - optimal linear pass with dictionary lookups and prefix sums.
-- Space: O(N) - to store prefix sum arrays and frequency maps.
+- Time: O(N) per test case - optimal linear pass with direct array indexing instead of hash map overhead.
+- Space: O(N + K) - to store prefix sums and the frequency count array of size `k`.
 """
 
 import sys
@@ -28,7 +28,7 @@ def solve():
         for i in range(n):
             pf[i + 1] = (pf[i] + arr[i]) % k
 
-        freq = {}
+        freq = [0] * k
 
         ans = 0
 
@@ -36,11 +36,10 @@ def solve():
             j = r - k - 1
             if j >= 0:
                 rem = pf[j]
-                freq[rem] = freq.get(rem, 0) + 1
+                freq[rem] += 1
 
             current_rem = pf[r]
-            if current_rem in freq:
-                ans += freq[current_rem]
+            ans += freq[current_rem]
 
         print(ans)
 
